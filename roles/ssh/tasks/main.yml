@@ -1,0 +1,15 @@
+---
+- name: Configure reverse DNS name lookup setting for logins via SSH
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^UseDNS'
+    line: 'UseDNS {{ ssh.usedns if ssh.usedns is defined else "no" }}'
+  notify:
+    - restart sshd
+
+- name: Congigure a Session Timeout for Inactive Logins
+  copy:
+    content: 'TMOUT={{ ssh.timeout if ssh.timeout is defined else "300" }}'
+    dest: /etc/profile.d/session_timeout.sh
+
+- meta: flush_handlers

@@ -1,0 +1,85 @@
+loopback:
+  ips:
+    - "{{vxlan_local_loopback_subnet}}.20/32"
+
+eth0:
+  dhcp: False
+  ips:
+    - "10.159.77.20/24"
+  extras:
+    - "gateway 10.159.77.10"
+    - "hwaddress ether mac_sanitized"
+    - "mtu 1500"
+
+interfaces:
+  # swp1-48 to servers
+  - { name: "swp1", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp2", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp3", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp4", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp5", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp6", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp7", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp8", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp9", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp10", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp11", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp12", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp13", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp14", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp15", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp16", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp17", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp18", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp19", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp20", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp21", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp22", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp23", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp24", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp25", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp26", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp27", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp28", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp29", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp30", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp31", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp32", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp33", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp34", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp35", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp36", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp37", profile: "{{ ceph_oob_ports }}" }
+  # TEMPORARY Mgmt Patch to 6D17
+  - { name: "swp38", profile: "{{ switch_mgt_ports }}" }
+  # 6D09 PDUs 1/2/3/4
+  - { name: "swp39", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp40", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp41", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp42", profile: "{{ switch_mgt_ports }}" }
+  # 6D10 PDUs 1/2/3/4
+  - { name: "swp43", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp44", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp45", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp46", profile: "{{ switch_mgt_ports }}" }
+  - { name: "swp47", profile: "{{ ceph_oob_ports }}" }
+  - { name: "swp48", profile: "{{ ceph_oob_ports }}" }
+  # swp51-52 uplinks to separate cores
+  - { name: swp51, profile: "{{ leaf_spine_interface }}" }
+  - { name: swp52, profile: "{{ leaf_spine_interface }}" }
+  # Uplink bond to cores
+  - { name: bond0, profile: "{{ leaf_uplink_bond_interface }}" }
+
+bridge:
+  interfaces:
+    - { name: "glob swp1-48" }
+    - { name: "bond0"}
+  vids:
+    - 3900
+    - 3902
+  extras:
+    - "bridge-pvid 3902"
+
+vlans:
+  - "{{ leaf_vlan3900 }}"
+  - "{{ leaf_vlan3902 }}"

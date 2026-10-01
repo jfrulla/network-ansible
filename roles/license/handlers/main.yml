@@ -1,0 +1,11 @@
+---
+- name: Load license file
+  command: 
+    cmd: /usr/cumulus/bin/cl-license -i /root/cl_license.txt
+  listen: "activate license"
+
+- name: Restart switchd service
+  service:
+    name: switchd
+    state: restarted
+  listen: "activate license"

@@ -1,0 +1,11 @@
+---
+- name: reboot server
+  reboot:
+    reboot_timeout: 1200
+    test_command: pwd
+
+- name: restart ntp
+  service:
+    name: ntp
+    state: restarted
+    enabled: true

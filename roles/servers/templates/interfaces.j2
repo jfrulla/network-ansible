@@ -1,0 +1,33 @@
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The OOB network interface
+auto eth0
+iface eth0 inet dhcp
+
+# The data plane network interfaces
+auto eth1
+iface eth1 inet manual
+  bond-master uplink
+  # Required for Vagrant
+  post-up ip link set promisc on dev eth1
+
+auto eth2
+iface eth2 inet manual
+  bond-master uplink
+  # Required for Vagrant
+  post-up ip link set promisc on dev eth2
+
+auto uplink
+iface uplink inet static
+  address {{ devices[inventory_hostname].bond.ip | ipaddr('address')  }}
+  netmask {{ devices[inventory_hostname].bond.ip | ipaddr('netmask')  }}
+  mtu 9000
+  bond-slaves none
+  bond-mode 802.3ad
+  bond-miimon 100
+  bond-lacp-rate 1
+  bond-min-links 1
+  bond-xmit-hash-policy layer3+4
+  post-up ip route add {{ devices[inventory_hostname].bond.route.dest }} via {{ devices[inventory_hostname].bond.route.nexthop }}

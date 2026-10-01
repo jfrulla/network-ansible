@@ -1,0 +1,138 @@
+loopback: 
+  ips:
+    - "{{vxlan_local_loopback_subnet}}.103/32"
+
+eth0:
+  dhcp: False
+  ips: 
+    - "10.158.212.77/21"
+  extras:
+    - "address 10.158.212.77/21"
+    - "gateway 10.158.208.45"
+    - "hwaddress ether mac_sanitized"
+    - "mtu 1500"
+
+interfaces:
+  # Uplink to Science DMZ
+  - { name: "swp1", profile: "{{ uplink_ports_mlag }}" }
+  #- { name: "swp2", profile: "{{ uplink_ports_mlag }}" } # Futureproofing (unused)
+
+  # Downlink to original core switches oldcore_leaf_ports_mlag
+  - { name: "swp3", profile: "{{ oldcore_leaf_ports_mlag }}" } 
+  #- { name: "swp4", profile: "{{ oldcore_leaf_ports_mlag }}" } 
+
+  # Downlink to Kopah switches
+  - { name: "swp5", profile: "{{ ceph_leaf_ports_mlag }}" } 
+  # - { name: "swp6", profile: "{{ ceph_leaf_ports_mlag }}" } 
+
+  # Leaf switch downlinks
+  - { name: "swp7", profile: "{{ leaf_spine_interface }}" }  # Tillicum Leaf Switch 1
+  - { name: "swp8", profile: "{{ leaf_spine_interface }}" }  # Tillicum Leaf Switch 2
+  - { name: "swp9", profile: "{{ leaf_spine_interface }}" }  # Tillicum Leaf Switch 3
+  - { name: "swp10", profile: "{{ leaf_spine_interface }}" } # Tillicum Leaf Switch 4
+  - { name: "swp11", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp12", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp13", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp14", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp15", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp16", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp17", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp18", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp19", profile: "{{ leaf_spine_interface }}" }
+  - { name: "swp20", profile: "{{ leaf_spine_interface }}" }
+
+  # Ports for servers
+  - { name: "swp21", profile: "{{ server_ports_mlag }}" }
+  - { name: "swp22", profile: "{{ server_ports_mlag }}" }
+  - { name: "swp23", profile: "{{ server_ports_mlag }}" }
+  - { name: "swp24", profile: "{{ server_ports_mlag }}" }
+  - { name: "swp25", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 1
+  - { name: "swp26", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 2
+  - { name: "swp27", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 3
+  - { name: "swp28", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 4
+  - { name: "swp29", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 5
+  - { name: "swp30", profile: "{{ server_ports_mlag }}" }    # Tillicum MGMT Server 6
+
+  # Connected to other 100G core
+  - { name: "swp31", profile: "{{ spine_spine_interface }}" } 
+  - { name: "swp32", profile: "{{ spine_spine_interface }}" } 
+
+
+bridge:
+  vids:
+    - 20
+    - 116
+    - 200
+    - 201
+    - 3900
+    - 3901
+    - 3902
+    - 3903
+    - 3904
+    - 3906
+  extras:
+    - "bridge-pvid 3900"
+
+vlans:
+  - "{{ leaf_vlan20 }}"
+  - "{{ leaf_vlan116 }}"
+  - "{{ leaf_vlan200 }}"
+  - "{{ leaf_vlan201 }}"
+  - "{{ leaf_vlan3900 }}"
+  - "{{ leaf_vlan3901 }}"
+  - "{{ leaf_vlan3902 }}"
+  - "{{ leaf_vlan3903 }}"
+  - "{{ leaf_vlan3904 }}"
+  - "{{ leaf_vlan3906 }}"
+
+peerlink:
+  extras:
+    - "mtu 9216"
+
+mlag:
+  sysmac: "{{mlag_sysmac_prefix}}:BA"
+  priority: primary
+  peerlinks: [ swp31, swp32 ]
+  backup: "10.158.211.234 vrf mgmt"
+  bonds:
+    # Uplink to Science DMZ
+    - { profile: "{{ mlagBondProfile_uplink }}",   name: bond1,  ports: [swp1],  id: 1 }
+    #- { profile: "{{ mlagBondProfile_uplink }}",   name: bond2,  ports: [swp2],  id: 2 } # Reserved
+    
+    # Downlink to 'old' core switches
+    - { profile: "{{ mlagBondProfile_oldcore }}",  name: bond3,  ports: [swp3],  id: 3 }
+    #- { profile: "{{ mlagBondProfile_oldcore }}",  name: bond4,  ports: [swp4],  id: 4 } # Reserved
+    
+    # Downlink to orci/kopah switches
+    - { profile: "{{ mlagBondProfile_orci }}", name: bond5,  ports: [swp5],  id: 5 }
+    # - { profile: "{{ mlagBondProfile_orci }}", name: bond6,  ports: [swp6],  id: 6 } # Reserved
+
+    # Future leaf switch downlinks
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond7,  ports: [swp7],  id: 7 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond8,  ports: [swp8],  id: 8 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond9,  ports: [swp9],  id: 9 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond10, ports: [swp10], id: 10 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond11, ports: [swp11], id: 11 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond12, ports: [swp12], id: 12 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond13, ports: [swp13], id: 13 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond14, ports: [swp14], id: 14 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond15, ports: [swp15], id: 15 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond16, ports: [swp16], id: 16 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond17, ports: [swp17], id: 17 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond18, ports: [swp18], id: 18 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond19, ports: [swp19], id: 19 }
+    - { profile: "{{ mlagBondProfile_switch }}",   name: bond20, ports: [swp20], id: 20 }
+
+    # Future server downlinks
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond21, ports: [swp21], id: 21 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond22, ports: [swp22], id: 22 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond23, ports: [swp23], id: 23 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond24, ports: [swp24], id: 24 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond25, ports: [swp25], id: 25 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond26, ports: [swp26], id: 26 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond27, ports: [swp27], id: 27 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond28, ports: [swp28], id: 28 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond29, ports: [swp29], id: 29 }
+    - { profile: "{{ mlagBondProfile_server }}",   name: bond30, ports: [swp30], id: 30 }
+
+ebtables_rules: "{{ ebtables_100g_core_data_plan_rules }}"

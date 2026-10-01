@@ -1,0 +1,29 @@
+{% if comments|default(False) %}
+###############
+# Mlag and peerlink
+###############
+{{ mlag.sysmac | to_nice_yaml | comment(prefix='# mlag.sysmac:', postfix='') }}
+{{ mlag.priority | to_nice_yaml | comment(prefix='# mlag.priority:', postfix='') }}
+{{ mlag.peerlinks | to_nice_yaml | comment(prefix='# mlag.peerlinks:', postfix='') }}
+{{ mlag.backup | to_nice_yaml | comment(prefix='# mlag.backup:', postfix='') -}}
+{% endif %}
+{% for interface in mlag.peerlinks %}
+auto {{ interface }}
+iface {{ interface }}
+    alias peerlink
+{% endfor %}
+auto peerlink
+iface peerlink
+    bond-slaves {% for interface in mlag.peerlinks %}{{ interface }} {% endfor %}
+
+auto peerlink.4094
+iface peerlink.4094
+    clagd-backup-ip {{ mlag.backup }}
+    clagd-peer-ip linklocal
+    clagd-priority {{ '1000' if mlag.priority == 'primary' else '32768' }}
+    clagd-sys-mac {{ mlag.sysmac }}
+
+{% for extra in peerlink.extras|default() %}
+    {{ extra }}
+{% endfor %}
+

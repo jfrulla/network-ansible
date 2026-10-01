@@ -1,0 +1,13 @@
+---
+- name: stop snmpd in default vrf
+  service:
+    name: snmpd
+    state: stopped
+    enabled: false
+
+- name: restart snmpd in mgmt vrf
+  service:
+    name: snmpd@mgmt
+    state: restarted
+    enabled: true
+  changed_when: false

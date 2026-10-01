@@ -1,0 +1,6 @@
+---
+- name: restart netq
+  command: "{{ item }}"
+  with_items:
+    - netq config restart agent
+    - netq config restart cli

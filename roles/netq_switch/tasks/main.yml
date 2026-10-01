@@ -1,0 +1,42 @@
+---
+- name: Add Cumulus Apt Key
+  apt_key:
+    url: "https://apps3.cumulusnetworks.com/setup/cumulus-apps-deb.pubkey"
+    state: present
+
+- name: Add Cumulus Repo
+  apt_repository:
+    repo: deb https://apps3.cumulusnetworks.com/repos/deb CumulusLinux-{{ ansible_distribution_major_version }} netq-{{ netq.version }}
+    state: present
+    update_cache: no
+
+- name: Install NetQ
+  apt:
+    name:
+      - netq-apps
+      - netq-agent
+    update_cache: yes
+    state: latest # noqa 403
+    policy_rc_d: 0
+
+# This way is more idemotent but not ideal for netq. It works, but has some caveats.
+#
+#- name: copy netq config file
+#  template:
+#    src: netq.yml.j2
+#    dest: /etc/netq/netq.yml
+#  notify: restart netq
+
+# Working with netq via shell isn't idempodent. Working on this
+- name: configure netq-agent
+  shell: netq config add agent server {{ netq.agent_server }} vrf mgmt
+
+- name: restart netq-agent
+  shell: netq config restart agent
+
+# Don't need the CLI configured for CI nor do we want to do this for AIR, disabling for now.
+#- name: configure netq-cli
+#  shell: netq config add cli server {{ netq.cli_server }} access_key {{ netq.cli_access_key }} secret-key {{ netq.cli_secret_key }} premise {{ netq.cli_premise }} vrf mgmt port {{ netq.cli_port }}
+
+#- name: restart cli
+#  shell: netq config restart cli

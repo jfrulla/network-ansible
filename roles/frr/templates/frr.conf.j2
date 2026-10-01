@@ -1,0 +1,14 @@
+{{ ansible_managed }}
+frr defaults datacenter
+hostname {{ inventory_hostname }}
+username cumulus nopassword
+!
+service integrated-vtysh-config
+!
+log syslog informational
+!
+{% include './features/bgp.conf.j2' %}
+
+!
+line vty
+!

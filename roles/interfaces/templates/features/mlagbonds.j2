@@ -1,0 +1,35 @@
+{% if comments|default(False) %}
+###############
+# Mlag Bonds
+###############
+{{ mlag.bonds | to_nice_yaml | comment(prefix='# mlag.bonds:', postfix='') -}}
+{% endif %}
+{% for bond in mlag.bonds %}
+{%   for port in bond.ports %}
+auto {{ port }}
+iface {{ port }}
+    alias bond member of {{ bond.name }}
+    # mtu 9000
+{%   endfor %}
+auto {{ bond.name }}
+iface {{ bond.name }}
+    alias {{ bond.name }} on {{ bond.ports|join(' and ') }}
+    # mtu 9000
+    clag-id {{ bond.id }}
+{%   if bond.profile.bridge_access is defined %}
+    bridge-access {{ bond.profile.bridge_access }}
+{%   endif %}
+{%   if bond.profile.bridge_vids is defined %}
+    bridge-vids {{ bond.profile.bridge_vids|join(' ') }}
+{%   endif %}
+{%   if bond.profile.bridge_pvid is defined %}
+    bridge-pvid {{ bond.profile.bridge_pvid }}
+{%   endif %}
+    bond-slaves {% for port in bond.ports %}{{ port }} {% endfor %}
+
+{%   for extra in bond.profile.extras|default() %}
+    {{ extra }}
+{%   endfor %}
+
+{% endfor %}
+

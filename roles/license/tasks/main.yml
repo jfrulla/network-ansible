@@ -1,0 +1,12 @@
+---
+
+- name: Copy license file
+  copy:
+    content: "{{ cumulus_license }}"
+    dest: /root/cl_license.txt
+    owner: root
+    group: root
+    mode: 0600
+  notify: "activate license"
+
+- meta: flush_handlers

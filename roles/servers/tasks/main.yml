@@ -1,0 +1,44 @@
+---
+- name: Set time zone
+  timezone:
+    name: "{{ ntp.timezone }}"
+
+- name: Configure NTP service configuration
+  template:
+    src: ntp.j2
+    dest: /etc/ntp.conf
+  notify:
+    - restart ntp
+
+- meta: flush_handlers
+
+- name: Add bonding module
+  modprobe:
+    name: bonding
+    state: present
+
+- name: Add lldp package
+  apt:
+    name: lldpd
+    state: present
+
+- name: Copy lldp configuration
+  copy:
+    src: port_info.conf
+    dest: /etc/lldpd.d/port_info.conf
+
+- name: Add ifenslave
+  apt:
+    name: ifenslave
+    state: present
+
+- name: Remove netplan
+  apt:
+    name: netplan.io
+    state: absent
+
+- name: Push interfaces config to servers
+  template:
+    src: interfaces.j2
+    dest: /etc/network/interfaces
+  notify: reboot server

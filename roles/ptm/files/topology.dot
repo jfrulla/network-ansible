@@ -1,0 +1,82 @@
+graph dc {
+   "oob-mgmt-switch"  [function="oob-switch" mgmt_ip="192.168.200.2" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "oob-mgmt-server"  [function="oob-server" mgmt_ip="192.168.200.1" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "netq-ts"   [function="host" mgmt_ip="192.168.200.250" tunnelip="172.31.255.254" cpu="4" memory="8192" os="cumulus/tscloud222" ssh_user="cumulus" ztp="../tc_files/netq-cloud-ztp.sh" config="./helper_scripts/extra_switch_config.sh"]
+
+   "spine01" [function="spine" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "spine02" [function="spine" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "spine03" [function="spine" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "spine04" [function="spine" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "fw1" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "fw2" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "leaf01" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "leaf02" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "leaf03" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "leaf04" [function="leaf" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "border01" [function="exit" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+   "border02" [function="exit" version="3.7.8" ssh_user="cumulus" tunnelip="172.31.255.254"]
+
+   "server01" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server02" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server03" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server04" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server05" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server06" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server07" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+   "server08" [function="host" os="generic/ubuntu1804" ssh_user="cumulus" config="../tc_files/cldemo2_extra_server_config.sh" tunnelip="172.31.255.254"]
+
+   "spine01":"swp1" -- "leaf01":"swp51"
+   "spine02":"swp1" -- "leaf01":"swp52"
+   "spine03":"swp1" -- "leaf01":"swp53"
+   "spine04":"swp1" -- "leaf01":"swp54"
+   "spine01":"swp2" -- "leaf02":"swp51"
+   "spine02":"swp2" -- "leaf02":"swp52"
+   "spine03":"swp2" -- "leaf02":"swp53"
+   "spine04":"swp2" -- "leaf02":"swp54"
+   "spine01":"swp3" -- "leaf03":"swp51"
+   "spine02":"swp3" -- "leaf03":"swp52"
+   "spine03":"swp3" -- "leaf03":"swp53"
+   "spine04":"swp3" -- "leaf03":"swp54"
+   "spine01":"swp4" -- "leaf04":"swp51"
+   "spine02":"swp4" -- "leaf04":"swp52"
+   "spine03":"swp4" -- "leaf04":"swp53"
+   "spine04":"swp4" -- "leaf04":"swp54"
+   "spine01":"swp5" -- "border01":"swp51"
+   "spine02":"swp5" -- "border01":"swp52"
+   "spine03":"swp5" -- "border01":"swp53"
+   "spine04":"swp5" -- "border01":"swp54"
+   "spine01":"swp6" -- "border02":"swp51"
+   "spine02":"swp6" -- "border02":"swp52"
+   "spine03":"swp6" -- "border02":"swp53"
+   "spine04":"swp6" -- "border02":"swp54"
+
+   "leaf01":"swp1" -- "server01":"eth1"
+   "leaf01":"swp2" -- "server02":"eth1"
+   "leaf01":"swp3" -- "server03":"eth1"
+   "leaf02":"swp1" -- "server01":"eth2"
+   "leaf02":"swp2" -- "server02":"eth2"
+   "leaf02":"swp3" -- "server03":"eth2"
+   "leaf03":"swp1" -- "server04":"eth1"
+   "leaf03":"swp2" -- "server05":"eth1"
+   "leaf03":"swp3" -- "server06":"eth1"
+   "leaf04":"swp1" -- "server04":"eth2"
+   "leaf04":"swp2" -- "server05":"eth2"
+   "leaf04":"swp3" -- "server06":"eth2"
+
+   "border01":"swp1" -- "server07":"eth1"
+   "border01":"swp2" -- "server08":"eth1"
+   "border01":"swp3" -- "fw1":"swp1"
+   "border01":"swp4" -- "fw2":"swp1"
+   "border02":"swp1" -- "server07":"eth2"
+   "border02":"swp2" -- "server08":"eth2"
+   "border02":"swp3" -- "fw1":"swp2"
+   "border02":"swp4" -- "fw2":"swp2"
+
+   "leaf01":"swp49" -- "leaf02":"swp49"
+   "leaf01":"swp50" -- "leaf02":"swp50"
+   "leaf03":"swp49" -- "leaf04":"swp49"
+   "leaf03":"swp50" -- "leaf04":"swp50"
+   "border01":"swp49" -- "border02":"swp49"
+   "border01":"swp50" -- "border02":"swp50"
+
+}

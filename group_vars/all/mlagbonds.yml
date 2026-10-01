@@ -1,0 +1,104 @@
+---
+# mlagBondProfileA:
+#   bridge_access: 10
+#   extras:
+#     - "bond-lacp-bypass-allow yes"
+#     - "mstpctl-bpduguard yes"
+#     - "mstpctl-portadminedge yes"
+# mlagBondProfileB:
+#   bridge_access: 20
+#   extras:
+#     - "bond-lacp-bypass-allow yes"
+#     - "mstpctl-bpduguard yes"
+#     - "mstpctl-portadminedge yes"
+mlagBondProfile_switch:
+  bridge_vids: [20, 200, 201, 3900, 3902, 3903, 3904, 3906]
+  extras:
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard no"
+    - "mstpctl-portadminedge no"
+    - "mtu 9216"
+
+# mlagBondProfile_head:
+#   bridge_vids: [20, 200, 3900, 3903, 3902]
+#   extras:
+#     - "bond-lacp-bypass-allow yes"
+#     - "mstpctl-bpduguard no"
+#     - "mstpctl-portadminedge no"
+#     - "mtu 9216"
+
+mlagBondProfile_uplink:
+  bridge_vids: [20, 116, 3900, 3901, 3902, 3903, 3904, 3906]
+  extras:
+    - bridge-allow-untagged no
+    - "bond-lacp-bypass-allow yes"
+#    - "mstpctl-bpduguard no"
+#    - "mstpctl-portadminedge no"
+    - "mstpctl-portbpdufilter yes"
+    - "mtu 9216"
+
+mlagBondProfile_orci:
+  bridge_vids: [116, 3900, 3901, 3902]
+  extras:
+    - "bridge-allow-untagged no"
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard no"
+    - "mstpctl-portadminedge no"
+#    - "bridge-pvid 3901"
+    - "mtu 9216"
+
+mlagBondProfile_oldcore:
+  bridge_vids: [20, 116, 200, 201, 3900, 3901, 3902, 3903, 3904, 3906]
+  extras:
+    - "bridge-allow-untagged no"
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard no"
+    - "mstpctl-portadminedge no"
+#    - "bridge-pvid 3901"
+    - "mtu 9216"
+
+mlagBondProfile_server:
+  bridge_vids: [20, 200, 201, 3900, 3903, 3904, 3906]
+  extras:
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard yes"
+    - "mstpctl-portadminedge yes"
+    - "mtu 9216"
+
+mlagBondProfile_dtn:
+  bridge_vids: [200]
+  extras:
+    - "bridge-pvid 200" 
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard yes"
+    - "mstpctl-portadminedge yes"
+    - "mtu 9216"
+
+mlagBondProfile_orci_oob:
+  bridge_vids: [3900, 3902]
+  extras:
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard no"
+    - "mstpctl-portadminedge no"
+    - "mtu 9216"
+    - "bridge-pvid 3902"
+
+mlagBondProfile_server_campus:
+  bridge_vids: [3903]
+  #bridge_vids: [3900]
+  extras:
+    - "bond-lacp-bypass-allow yes"
+    - "mstpctl-bpduguard yes"
+    - "mstpctl-portadminedge yes"
+    - "mtu 9216"
+    - "bridge-pvid 3903"
+    #- "bridge-pvid 3900"
+
+#mlagBondProfile_node:
+#  bridge_vids: [20, 200, 3900]
+#  extras:
+#    - "bond-lacp-bypass-allow yes"
+#    - "mstpctl-bpduguard yes"
+#    - "mstpctl-portadminedge yes"
+#    - "mtu 9216"
+#    - "bridge-pvid 200"

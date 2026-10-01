@@ -1,0 +1,4 @@
+---
+- name: apply ebtables rules
+  become: true
+  shell: /usr/cumulus/bin/cl-acltool -i

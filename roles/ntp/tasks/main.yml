@@ -1,0 +1,14 @@
+---
+- name: Set time zone
+  timezone:
+    name: '{{ ntp.timezone if ntp.timezone is defined else "Etc/UTC" }}'
+
+- name: Configure NTP service configuration
+  template:
+    src: ntp.j2
+    dest: /etc/ntp.conf
+  notify:
+    - stop ntp in default vrf
+    - restart ntp in mgmt vrf
+
+- meta: flush_handlers

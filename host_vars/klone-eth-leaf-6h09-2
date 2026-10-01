@@ -1,0 +1,134 @@
+loopback:
+  ips:
+    - "{{vxlan_local_loopback_subnet}}.2/32"
+  # vxlan_local_tunnel_ip: "{{vxlan_local_loopback_subnet}}.2"
+  # clag_vxlan_anycast_ip: "{{vxlan_anycast_loopback_subnet}}.1"
+
+# eth0:
+#   dhcp: False
+#   ips: 
+#     - "10.158.208.129/21"
+#   extras:
+#     - "gateway 10.158.208.45"
+#     - "hwaddress ether mac_sanitized"
+#     - "mtu 1500"
+
+eth0:
+  dhcp: False
+  ips: 
+    - "10.158.208.96/21"
+  extras:
+    - "address 192.168.0.88/24"
+    - "gateway 10.158.208.45"
+    - "hwaddress ether mac_sanitized"
+    - "mtu 1500"
+
+interfaces:
+  # swp1-48 to servers
+  - { name: "swp1", profile: "{{ node_ports }}" }
+  - { name: "swp2", profile: "{{ node_ports }}" }
+  - { name: "swp3", profile: "{{ node_ports }}" }
+  - { name: "swp4", profile: "{{ node_ports }}" }
+  - { name: "swp5", profile: "{{ node_ports }}" }
+  - { name: "swp6", profile: "{{ node_ports }}" }
+  - { name: "swp7", profile: "{{ node_ports }}" }
+  - { name: "swp8", profile: "{{ node_ports }}" }
+  - { name: "swp9", profile: "{{ node_ports }}" }
+  - { name: "swp10", profile: "{{ node_ports }}" }
+  - { name: "swp11", profile: "{{ node_ports }}" }
+  - { name: "swp12", profile: "{{ node_ports }}" }
+  - { name: "swp13", profile: "{{ node_ports }}" }
+  - { name: "swp14", profile: "{{ node_ports }}" }
+  - { name: "swp15", profile: "{{ node_ports }}" }
+  - { name: "swp16", profile: "{{ node_ports }}" }
+  - { name: "swp17", profile: "{{ node_ports }}" }
+  - { name: "swp18", profile: "{{ node_ports }}" }
+  - { name: "swp19", profile: "{{ node_ports }}" }
+  - { name: "swp20", profile: "{{ node_ports }}" }
+  - { name: "swp21", profile: "{{ node_ports }}" }
+  - { name: "swp22", profile: "{{ node_ports }}" }
+  - { name: "swp23", profile: "{{ node_ports }}" }
+  - { name: "swp24", profile: "{{ node_ports }}" }
+  - { name: "swp25", profile: "{{ node_ports }}" }
+  - { name: "swp26", profile: "{{ node_ports }}" }
+  - { name: "swp27", profile: "{{ node_ports }}" }
+  - { name: "swp28", profile: "{{ node_ports }}" }
+  - { name: "swp29", profile: "{{ node_ports }}" }
+  - { name: "swp30", profile: "{{ node_ports }}" }
+  - { name: "swp31", profile: "{{ node_ports }}" }
+  - { name: "swp32", profile: "{{ node_ports }}" }
+  - { name: "swp32", profile: "{{ node_ports }}" }
+  - { name: "swp33", profile: "{{ node_ports }}" }
+  - { name: "swp34", profile: "{{ node_ports }}" }
+  - { name: "swp35", profile: "{{ node_ports }}" }
+  - { name: "swp36", profile: "{{ node_ports }}" }
+  - { name: "swp37", profile: "{{ node_ports }}" }
+  - { name: "swp38", profile: "{{ node_ports }}" }
+  - { name: "swp39", profile: "{{ node_ports }}" }
+  - { name: "swp40", profile: "{{ node_ports }}" }
+  - { name: "swp41", profile: "{{ node_ports }}" }
+  - { name: "swp42", profile: "{{ node_ports }}" }
+  - { name: "swp43", profile: "{{ node_ports }}" }
+  - { name: "swp44", profile: "{{ node_ports }}" }
+  - { name: "swp45", profile: "{{ node_ports }}" }
+  - { name: "swp46", profile: "{{ node_ports }}" }
+  - { name: "swp47", profile: "{{ node_ports }}" }
+  - { name: "swp48", profile: "{{ node_ports }}" }
+  # swp51-52 uplinks to separate cores
+  - { name: swp51, profile: "{{ leaf_spine_interface }}" }
+  - { name: swp52, profile: "{{ leaf_spine_interface }}" }
+  # Uplink bond to cores
+  - { name: bond0, profile: "{{ leaf_uplink_bond_interface }}" }
+
+# vnis:
+#   - "{{ vni10_leaf }}"
+#   - "{{ vni20_leaf }}"
+bridge:
+  interfaces:
+    - { name: "glob swp1-48" }
+    - { name: "bond0"}
+  vids:
+    - 20
+    - 200
+    - 3900
+  extras:
+    - "bridge-pvid 3900"
+# mlag:
+#   sysmac: "{{mlag_sysmac_prefix}}:AA"
+#   priority: primary
+#   peerlinks: [ swp49, swp50 ]
+#   backup: "{{vxlan_local_loopback_subnet}}.1"
+#   bonds:
+#     - { profile: "{{ mlagBondProfileA }}", name: bond1, ports: [swp1], id: 1 }
+#     - { profile: "{{ mlagBondProfileB }}", name: bond2, ports: [swp2], id: 2 }
+##     - { profile: "{{ mlagBondProfileFW }}", name: bond3, ports: [swp3], id: 1 }
+vlans:
+  - "{{ leaf_vlan20 }}"
+  - "{{ leaf_vlan200 }}"
+  - "{{ leaf_vlan3900 }}"
+# bgp: 
+#   asn: "{{ bgp_asn_prefix }}01"
+#   router_id: "{{vxlan_local_loopback_subnet}}.2"
+#   peergroups:
+#     - { name: underlay, remote_as: external }
+#   neighbors:
+#     # Removed as per suggestion from dsinn
+#     # - { interface: peerlink.4094, unnumbered: yes, remote_as: internal }
+#     - { interface: swp51, unnumbered: yes, peergroup: underlay }
+#     - { interface: swp52, unnumbered: yes, peergroup: underlay }
+#   extras:
+#     - "bgp bestpath as-path multipath-relax"
+#     # added per suggestion from dsinn
+#     - "neighbor underlay allowas-in origin"
+#   address_family:
+#     - name: ipv4_unicast
+#       redistribute:
+#         - { type: connected }
+#       extras:
+#         - "neighbor underlay allowas-in origin"
+#     - name: l2vpn_evpn
+#       neighbors:
+#         - { interface: underlay, activate: yes }
+#       advertise_all_vni: yes
+#       extras:
+#         - "neighbor underlay allowas-in origin"

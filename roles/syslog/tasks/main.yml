@@ -1,0 +1,10 @@
+---
+- name: Configure syslog
+  template:
+    src: 11-remotesyslog.conf.j2
+    dest: /etc/rsyslog.d/11-remotesyslog.conf
+  notify:
+    - restart syslog
+  when: syslog.servers is defined
+
+- meta: flush_handlers

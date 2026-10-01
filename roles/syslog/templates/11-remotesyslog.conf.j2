@@ -1,0 +1,4 @@
+{{ ansible_managed }}
+{% for ip in syslog.servers %}
+action(type="omfwd" Target="{{ ip }}" Device="mgmt" Port="514" Protocol="udp")
+{% endfor %}

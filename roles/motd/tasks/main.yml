@@ -1,0 +1,20 @@
+---
+- name: Set MOTD
+  copy:
+    content: "{{ ssh.motd }}"
+    dest: /etc/motd
+  when: ssh is defined and ssh.motd is defined
+
+- name: Set pre login banner
+  template:
+    src: issue.net.j2
+    dest: /etc/issue.net
+
+- name: Enable pre login banner
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: "^#Banner /etc/issue.net"
+    replace: "Banner /etc/issue.net"
+  notify: restart ssh
+
+- meta: flush_handlers

@@ -1,0 +1,7 @@
+---
+fabric_name: klone_ethernet
+resv_vlan_range: "3500-3899"
+#bgp_asn_prefix: 651
+vxlan_local_loopback_subnet: 10.64.254
+# vxlan_anycast_loopback_subnet: 10.64.255
+mlag_sysmac_prefix: 44:38:39:FF:EE

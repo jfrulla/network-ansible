@@ -1,0 +1,10 @@
+{{ ansible_managed }}
+{% set vrf_str = " # vrf " + dns.servers.vrf|string if dns.servers.vrf is defined else "" %}
+{{ "domain " + dns.domain if dns.domain is defined else "" }}
+{{ "search " + dns.search_domain|join(" ")|string if dns.search_domain is defined else "" }}
+{% for server in dns.servers.ipv4|default([]) %}
+nameserver {{ server }}{{ vrf_str | default("") }}
+{% endfor %}
+{% for server in dns.servers.ipv6|default([]) %}
+nameserver {{ server }}{{ vrf_str | default("") }}
+{% endfor %}

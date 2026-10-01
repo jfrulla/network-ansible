@@ -1,0 +1,19 @@
+---
+# vni10_leaf:
+#   name: vni10
+#   vlan_id: 10
+#   vxlan_id: 10
+#   extras:
+#     - "mstpctl-portbpdufilter yes"
+#     - "mstpctl-bpduguard yes"
+#     - "bridge-learning off"
+#     - "bridge-arp-nd-suppress on"
+# vni20_leaf:
+#   name: vni20
+#   vlan_id: 20
+#   vxlan_id: 20
+#   extras:
+#     - "mstpctl-portbpdufilter yes"
+#     - "mstpctl-bpduguard yes"
+#     - "bridge-learning off"
+#     - "bridge-arp-nd-suppress on"

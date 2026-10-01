@@ -1,0 +1,10 @@
+---
+- name: Restart switchd
+  become: true
+  service:
+    name: switchd
+    state: restarted
+
+- name: apply interface changes
+  become: true
+  shell: ifreload -a

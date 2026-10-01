@@ -1,0 +1,32 @@
+{% if comments|default(False) %}
+###############
+# Bridge
+###############
+{{ bridge | default() | to_nice_yaml | comment(prefix='# bridge:', postfix='') -}}
+{% endif %}
+auto bridge
+iface bridge
+{% if bridge.interfaces is defined %}
+    bridge-ports {% for interface in bridge.interfaces %}{{ interface.name }} {% endfor %}
+{% endif %}
+
+{%- if bonds is defined %}
+    bridge-ports {% for bond in bonds %}{{ bond.name }} {% endfor %}
+{% endif %}
+
+{%- if mlag is defined %}
+    bridge-ports peerlink
+    bridge-ports {% for mlag_bond in mlag.bonds %}{{ mlag_bond.name }} {% endfor %}
+{% endif %}
+
+{% if vnis is defined %}
+    bridge-ports {% for vni in vnis %}{{ vni.name }} {% endfor %}
+{% endif %}
+
+    bridge-vids {% for vid in bridge.vids %}{{ vid }} {% endfor %} 
+    bridge-vlan-aware yes
+{% for extra in bridge.extras|default() %}
+    {{ extra }}
+{% endfor %}
+
+

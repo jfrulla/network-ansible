@@ -1,0 +1,64 @@
+---
+backup:
+  path: "../inventories/{{ fabric_name }}/config/{{ inventory_hostname }}"
+  files:
+    - "/etc/network/interfaces"
+    - "/etc/frr/frr.conf"
+    - "/etc/frr/daemons"
+dns:
+  domain: hyakm.washington.edu
+  search_domain:
+    - hyakm.washington.edu
+  servers:
+    ipv4:
+      - "10.158.213.78"
+      - "128.95.112.122"
+      - "128.95.120.104"
+    vrf: mgmt
+snmp:
+  addresses:
+    - "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}@mgmt"
+  rocommunity: public
+syslog:
+  servers:
+    - 10.158.213.78
+ntp:
+  timezone: America/Los_Angeles
+  server_ips:
+    - 10.158.213.78
+ssh:
+  motd: |
+    #########################################################
+    Successfully logged in to: {{ inventory_hostname }}
+    #########################################################
+  banner: |
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Authorized Users Only!
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# tacacs:
+#   vrf: mgmt
+#   secret: tacacskey
+#   server_ips:
+#     - 192.168.200.1
+#   users:
+#     - name: basicuser
+#       password: password
+#       group: basics
+#     - name: adminuser
+#       password: password
+#       group: admins
+#   groups:
+#     # admin group can do anything on network gear
+#     - name: admins
+#       priv_level: 15
+#     # basic group can run show commands and diagnostics but not change system configuration
+#     - name: basics
+#       priv_level: 1
+# netq:
+#   version: latest
+#   agent_server: 192.168.200.250
+#   cli_server: api.netq.cumulusnetworks.com
+#   cli_access_key: long-key-0987654321
+#   cli_secret_key: long-key-1234567890
+#   cli_premise: demo-site-1234
+#   cli_port: 443

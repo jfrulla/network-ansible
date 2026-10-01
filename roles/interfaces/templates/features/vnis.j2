@@ -1,0 +1,16 @@
+{% if comments|default(False) %}
+###############
+# VNIs
+###############
+{{ vnis | default() | to_nice_yaml | comment(prefix='# vnis', postfix='') -}}
+{% endif %}
+{% for vni in vnis %}
+auto {{ vni.name }}
+iface {{ vni.name }}
+    bridge-access {{ vni.vlan_id }}
+    vxlan-id {{ vni.vxlan_id }}
+{%   for extra in vni.extras|default() %}
+    {{ extra }}
+{%   endfor %}
+{% endfor %}
+

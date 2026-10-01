@@ -1,0 +1,37 @@
+{{ ansible_managed }}
+{% if snmp.addresses is defined %}
+{% for address in snmp.addresses %}
+agentAddress {{ address }}
+{% endfor %}
+{% else %}
+agentAddress {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}@mgmt
+agentAddress udp6:[::1]:161
+{% endif %}
+
+rocommunity     {{ snmp.rocommunity|default("public") }}
+
+agentxperms 777 777 snmp snmp
+agentxsocket /var/agentx/master
+createuser _snmptrapusernameX
+iquerysecname _snmptrapusernameX
+master agentx
+monitor -r 60 -o laNames -o laErrMessage "laTable" laErrorFlag != 0
+pass -p 10 1.3.6.1.2.1.1.1 /usr/share/snmp/sysDescr_pass.py
+pass_persist 1.2.840.10006.300.43 /usr/share/snmp/ieee8023_lag_pp.py
+pass_persist 1.3.6.1.2.1.17 /usr/share/snmp/bridge_pp.py
+pass_persist 1.3.6.1.2.1.31.1.1.1.18 /usr/share/snmp/snmpifAlias_pp.py
+pass_persist 1.3.6.1.2.1.47 /usr/share/snmp/entity_pp.py
+pass_persist 1.3.6.1.2.1.99 /usr/share/snmp/entity_sensor_pp.py
+pass_persist 1.3.6.1.4.1.40310.1 /usr/share/snmp/resq_pp.py
+pass_persist 1.3.6.1.4.1.40310.2 /usr/share/snmp/cl_drop_cntrs_pp.py
+pass_persist 1.3.6.1.4.1.40310.3 /usr/share/snmp/cl_poe_pp.py
+rouser _snmptrapusernameX
+sysobjectid 1.3.6.1.4.1.40310
+sysservices 72
+# Cumulus specific
+view   systemonly  included   .1.3.6.1.4.1.40310.1
+view   systemonly  included   .1.3.6.1.4.1.40310.2
+# Memory utilization
+view   systemonly  included   .1.3.6.1.4.1.2021.4
+# CPU utilization
+view   systemonly  included   .1.3.6.1.4.1.2021.11

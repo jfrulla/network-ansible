@@ -1,0 +1,19 @@
+---
+- name: Ensures local backup dir exists
+  file:
+    path: '{{ backup.path|default( "../inventories/" + fabric_name + "/config/" + inventory_hostname ) }}'
+    recurse: True
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  become: False
+  tags:
+    - local
+
+- name: Fetch config from remote devices and save to the config directory
+  fetch:
+    src: "{{ item }}"
+    dest: '{{ backup.path|default( "../inventories/" + fabric_name + "/config/" + inventory_hostname ) }}{{ item }}'
+    fail_on_missing: False
+    flat: True
+  loop: '{{ backup.files|default( [ "/etc/network/interfaces", "/etc/frr/frr.conf", "/etc/frr/daemons" ] ) }}'

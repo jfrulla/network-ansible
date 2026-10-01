@@ -1,0 +1,8 @@
+{% if ssh.motd is defined %}
+{{ ssh.motd }}
+{% else %}
+#########################################################
+Successfully logged in to: {{ inventory_hostname }}
+#########################################################
+
+{% endif %}

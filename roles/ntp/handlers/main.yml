@@ -1,0 +1,12 @@
+---
+- name: stop ntp in default vrf
+  service:
+    name: ntp
+    state: stopped
+    enabled: False
+
+- name: restart ntp in mgmt vrf
+  service:
+    name: ntp@mgmt
+    state: restarted
+    enabled: True

@@ -1,0 +1,7 @@
+---
+- name: install ebtables rules
+  copy:
+    content: "{{ item.content }}"
+    dest: "/etc/cumulus/acl/policy.d/{{ item.filename }}"
+  loop: "{{ ebtables_rules|default([]) }}"
+  notify: apply ebtables rules

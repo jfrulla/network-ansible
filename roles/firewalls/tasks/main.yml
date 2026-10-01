@@ -1,0 +1,7 @@
+---
+- name: Configure interfaces
+  template:
+    src: "interfaces.j2"
+    dest: /etc/network/interfaces
+    validate: ifup -a -s -i %s
+  notify: apply interface changes

@@ -1,0 +1,39 @@
+---
+- hosts: spine leaf
+  become: true
+  gather_facts: false
+  tasks:
+  - name: Copy over interfaces
+    copy: src=./backup_files/{{ inventory_hostname }}/interfaces dest=/etc/network/interfaces
+    notify: reload networking
+
+  - name: Copy over daemons
+    copy: src=./backup_files/{{ inventory_hostname }}/daemons dest=/etc/frr/daemons
+    notify: restart frr
+
+  - name: Copy over frr
+    copy: src=./backup_files/{{ inventory_hostname }}/frr.conf dest=/etc/frr/frr.conf
+    notify: reload frr
+
+  handlers:
+  - name: reload networking
+    shell: ifreload -a
+
+  - name: restart frr
+    service: name=frr state=restarted
+
+  - name: reload frr
+    service: name=frr state=reloaded
+
+- hosts: host
+  become: true
+  gather_facts: false
+  tasks:
+  - name: install ifupdown2
+    apt:
+      name: ifupdown2
+      state: present
+      update_cache: true
+
+  - name: Copy over interfaces template
+    template: src=./backup_files/{{ inventory_hostname }}/interfaces dest=/etc/network/interfaces

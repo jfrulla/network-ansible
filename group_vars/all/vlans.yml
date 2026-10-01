@@ -1,0 +1,61 @@
+---
+leaf_vlan20:
+  name: leaf_vlan20
+  id: 20
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan116:
+  name: leaf_vlan116
+  id: 116
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan200:
+  name: leaf_vlan200
+  id: 200
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan201:
+  name: leaf_vlan201
+  id: 201
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3900:
+  name: leaf_vlan3900
+  id: 3900
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3901:
+  name: leaf_vlan3901
+  id: 3901
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3902:
+  name: leaf_vlan3902
+  id: 3902
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3903:
+  name: leaf_vlan3903
+  id: 3903
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3904:
+  name: leaf_vlan3904
+  id: 3904
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"
+leaf_vlan3906:
+  name: leaf_vlan3906
+  id: 3906
+  extras:
+    - "ip-forward off"
+    - "ip6-forward off"

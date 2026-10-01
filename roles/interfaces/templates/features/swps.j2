@@ -1,0 +1,13 @@
+{% if comments|default(False) %}
+###############
+# SWPs
+###############
+{{ interfaces | default() | to_nice_yaml | comment(prefix='# interfaces:', postfix='') -}}
+{% endif %}
+{% for interface in interfaces %}
+auto {{ interface.name }}
+iface {{ interface.name }}
+{%   for extra in interface.profile.extras|default() %}
+    {{ extra }}
+{%   endfor %} 
+{% endfor %}

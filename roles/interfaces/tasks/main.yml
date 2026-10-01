@@ -1,0 +1,29 @@
+---
+- name: Ensure systemwide MTU
+  copy:
+    content: |
+      {
+       "address": {"defaults": { "mtu": "9216" },
+                   "iface_defaults": {"eth0": {"mtu": "1500"}}
+                  }
+      }
+    dest: /etc/network/ifupdown2/policy.d/mtu.json
+  notify: apply interface changes
+
+- name: Change reserved port range
+  lineinfile:
+      path: /etc/cumulus/switchd.conf
+      regexp: '^#resv_vlan_range ='
+      line: resv_vlan_range = {{ resv_vlan_range }}
+  notify: Restart switchd
+
+- name: Configure interfaces
+  template:
+    src: "interfaces.j2"
+    dest: /etc/network/interfaces
+    validate: ifup -a -s -i %s
+  notify: apply interface changes
+  tags:
+    - interfaces
+
+- meta: flush_handlers

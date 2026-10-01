@@ -1,0 +1,38 @@
+{% if comments|default(False) %}
+###############
+# Mgmt interface
+###############
+{{ mgmt | default() | to_nice_yaml | comment(prefix='# mgmt:', postfix='') -}}
+{% endif %}
+auto mgmt
+iface mgmt
+    vrf-table auto
+    address 127.0.0.1/8
+    address ::1/128
+{% for address in mgmt.ips|default() %}
+    address {{ address }}
+{% endfor %}
+{% for extra in mgmt.extras|default() %}
+    {{ extra }}
+{% endfor %}
+
+{% if eth0|default(False) %}
+{% if eth0.dhcp|default(True) %}
+auto eth0
+iface eth0 inet dhcp
+{% else %}
+auto eth0
+iface eth0 inet static
+{% endif %}
+    vrf mgmt
+{% for address in eth0.ips|default() %}
+    address {{ address }}
+{% endfor %}
+{% for extra in eth0.extras|default() %}
+    {{ extra }}
+{% endfor %}
+{% else %}
+auto eth0
+iface eth0
+{% endif %}
+

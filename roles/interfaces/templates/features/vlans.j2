@@ -1,0 +1,28 @@
+{% if comments|default(False) %}
+###############
+# SVI
+###############
+{{ vlans | default() | to_nice_yaml | comment(prefix='# vlans:', postfix='') -}}
+{% endif %}
+{% for vlan in vlans %}
+auto vlan{{ vlan.id }}
+iface vlan{{ vlan.id }}
+{%   if vlan.hwaddress is defined %}
+    hwaddress {{ vlan.hwaddress }}
+{%   endif %}
+{%   for address in vlan.address|default() %}
+    address {{ address }}
+{%     endfor %}
+{%   for address in vlan.address_virtual|default() %}
+    address-virtual {{ address }}
+{%     endfor %}
+{%   if vlan.vrf is defined %}
+    vrf {{ vlan.vrf }}
+{%   endif %}
+    vlan-raw-device bridge
+    vlan-id {{ vlan.id }}
+{%   for extra in vlan.extras|default() %}
+    {{ extra }}
+{%   endfor %}
+
+{% endfor %} 

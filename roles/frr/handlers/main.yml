@@ -1,0 +1,20 @@
+---
+# This command actually restarts frr. This command will actually drop all
+# routes currently in progress, so this will interrupt networking currently in
+# place.
+- name: restart frr
+  service:
+    name: frr
+    state: restarted
+
+# This is a graceful way of "replacing" the currently running configuration.
+- name: reload frr
+  service:
+    name: frr
+    state: reloaded
+
+- name: enable frr
+  service:
+    name: frr
+    state: started
+    enabled: yes

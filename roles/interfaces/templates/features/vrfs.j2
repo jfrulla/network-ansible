@@ -1,0 +1,16 @@
+{% if comments|default(False) %}
+###############
+# VRFs
+###############
+{{ vrf | default() | to_nice_yaml | comment(prefix='# vrf:', postfix='') -}}
+{% endif %}
+{% for vrf in vrf %}
+auto {{ vrf.name }}
+iface {{ vrf.name }}
+  vrf-table auto
+{%   for extra in vrf.extras|default() %}
+  {{ extra }}
+{%   endfor %}
+
+{% endfor %}
+

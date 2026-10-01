@@ -1,0 +1,17 @@
+---
+- name: Configure FRR daemons file
+  template:
+    src: daemons.j2
+    dest: /etc/frr/daemons
+  notify:
+    - restart frr
+
+- name: Configure FRR
+  template:
+    src: "frr.conf.j2"
+    dest: /etc/frr/frr.conf
+    validate: vtysh -f %s --dryrun
+  notify:
+    - reload frr
+
+- meta: flush_handlers

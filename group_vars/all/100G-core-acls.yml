@@ -1,0 +1,383 @@
+ebtables_100g_core_data_plan_rules:
+  - filename: '01data_plan.rules'
+    content: |
+      INGRESS_INTF = swp+
+      UPLINK_INTF = bond1
+
+      # Science DMZ
+      SCIDMZ_VLAN = 20
+      SCIDMZ_BLCK = 198.48.92.16/28
+
+      # Klone managment
+      MGMT_VLAN = 3900
+      MGMT_BLCK = 10.158.208.0/21
+
+      # Tillicum managment
+      TILLY_MGMT_VLAN = 3906
+      TILLY_MGMT_BLCK = 10.154.64.0/22
+
+      # ORCI On-Campus Services
+      CAMPUS_VLAN = 3903
+      CAMPUS_BLCK = 10.159.75.96/27
+
+      # OOD Servers
+      KLONE_OOD1_IP = 10.159.75.97
+      KLONE_OOD2_IP = 10.159.75.114
+
+      # Koopah (ceph storage)
+      KOPAH_OAM_VLAN = 3901
+      KOPAH_OAM_BLCK = 10.159.76.0/24
+
+      KOPAH_OOB_VLAN = 3902
+      KOPAH_OOB_BLCK = 10.159.77.0/24
+
+      KOPAH_DMZ_VLAN = 116
+      KOPAH_DMZ_BLCK = 198.48.92.96/28
+
+      # LDI servers
+      LDI_1 = 35.247.58.166
+      LDI_2 = 69.91.245.182
+      LDI_3 = 128.208.0.207
+
+      # Kerberos servers
+      KRB_1 = 140.142.234.115
+      KRB_2 = 128.208.60.72
+      KRB_3 = 140.142.234.115
+
+      # DNS servers
+      DNS_1 = 128.95.112.122
+      DNS_2 = 128.95.112.122
+
+      # DTN servers
+      DTN_1 = 198.48.92.23
+      DTN_2 = 198.48.92.27
+
+      # Hyak HON-D Split Tunnel subnets
+      HON_BLCK_1 = 10.104.134.0/26
+      HON_BLCK_2 = 10.104.198.0/26
+
+      # Hyak HON-D Non-Split Tunnel subnets
+      HON_BLCK_3 = 10.104.166.0/26
+      HON_BLCK_4 = 10.104.230.0/26
+
+      # Ngenea <-> Lolo
+      LOLO_IP = 140.142.12.17
+      NGENEA_IP = 10.158.211.188
+      SCIDMZ_NGENEA_IP = 198.48.92.25
+
+      PRIVATE_VLAN = 200
+      FWD_CHAIN = FORWARD
+
+      [ebtables]
+      ## Limit SCI DMZ Traffic
+      # Let SSH in from the outside world
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 22 -j ACCEPT
+
+      # Let GridFTP traffic in from the outside world
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 50000:51000 -j ACCEPT
+
+      # Allow HTTPS to Globus
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $DTN_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $DTN_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # Let back in return traffic opened by clients on the SCI DMZ (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Let back in return traffic opened by clients on the SCI DMZ (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow LDAP (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_3 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_1 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_2 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_3 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow LDAP (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_3 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_1 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_2 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $LDI_3 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow Kerberos (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_3 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_1 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_2 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_3 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow Kerberos (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_3 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_1 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_2 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $KRB_3 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow DNS (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_1 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_2 --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow DNS (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_1 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK --ip-source $DNS_2 --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $SCIDMZ_BLCK -j ACCEPT
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_BLCK -j DROP
+
+      ## Limit MGMT Traffic
+
+      # Explicitly block NAT traffic from Science DMZ or ORCI Campus net (example: connecting via DIP NAT)
+      # Removing in case causing problems
+      #-A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $SCIDMZ_BLCK --ip-destination $MGMT_BLCK -j DROP
+      #-A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $CAMPUS_BLCK --ip-destination $MGMT_BLCK -j DROP
+
+      # ACCEPT HON pool in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_1 --ip-destination $MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_2 --ip-destination $MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_3 --ip-destination $MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_4 --ip-destination $MGMT_BLCK -j ACCEPT
+
+      # Accept Lolo traffic to Ngenia
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $LOLO_IP --ip-destination $NGENEA_IP -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $LOLO_IP --ip-destination $SCIDMZ_NGENEA_IP -j ACCEPT
+      # Allow icmp to SCIDMZ Ngenia from Lolo
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-source $LOLO_IP --ip-destination $SCIDMZ_NGENEA_IP -j ACCEPT
+      # Drop all other IPv4 traffic to SCIDMZ Ngenia
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $SCIDMZ_NGENEA_IP -j DROP
+
+      # Allow util nodes from Mox net to access port range used for Prometheus exporters
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.162 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.160 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.253 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.9 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.155 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.138 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.171 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.248 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.126 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.13 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.191 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source 10.154.59.31 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 8080:11000 -j ACCEPT
+
+      # Let back in return traffic opened by clients on the MGMT LAN (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # Let back in return traffic opened by clients on the MGMT LAN (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      ## Allow Kopah to MGMT HTTP traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $MGMT_BLCK -j ACCEPT
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $MGMT_BLCK -j DROP
+
+
+      ## Limit Tillicum MGMT Traffic
+
+      # Explicitly block NAT traffic from Science DMZ or ORCI Campus net (example: connecting via DIP NAT)
+      # Removing in case causing problems
+      #-A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $SCIDMZ_BLCK --ip-destination $TILLY_MGMT_BLCK -j DROP
+      #-A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $CAMPUS_BLCK --ip-destination $TILLY_MGMT_BLCK -j DROP
+
+      # ACCEPT HON pool in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_1 --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_2 --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_3 --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_4 --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+
+      # ALLOW MGMT-TO-MGMT NETWORK TRAFFIC
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $MGMT_BLCK --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $TILLY_MGMT_BLCK --ip-destination $MGMT_BLCK -j ACCEPT
+
+      # Let back in return traffic opened by clients on the MGMT LAN (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # Let back in return traffic opened by clients on the MGMT LAN (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      ## Allow Kopah to MGMT HTTP traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK --ip-source $KOPAH_OOB_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $TILLY_MGMT_BLCK -j ACCEPT
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $TILLY_MGMT_BLCK -j DROP
+
+
+      # ## Limit ORCI On-Campus Service Traffic
+      # # Let TCP Web traffic in from the outside world to klone-ood1 (80/443)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD1_IP --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 80 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD1_IP --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # # Let TCP Web traffic in from the outside world  to klone-ood1 (80/443)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD1_IP --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 80 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD1_IP --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # # Let TCP Web traffic in from the outside world to klone-ood2 (80/443)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD2_IP --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 80 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD2_IP --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # # Let TCP Web traffic in from the outside world  to klone-ood2 (80/443)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD2_IP --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 80 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KLONE_OOD2_IP --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # # Let back in return traffic opened by clients (TCP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # # Let back in return traffic opened by clients (UDP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # # Allow LDAP (TCP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_3 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+
+      # # Allow LDAP (UDP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $LDI_3 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 389 -j ACCEPT
+
+      # # Allow Kerberos (TCP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_3 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+
+      # # Allow Kerberos (UDP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $KRB_3 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 88 -j ACCEPT
+
+      # # Allow DNS (TCP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $DNS_1 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $DNS_2 --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+
+      # # Allow DNS (UDP)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $DNS_1 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK --ip-source $DNS_2 --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 53 -j ACCEPT
+
+      # # Allow icmp
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $CAMPUS_BLCK -j ACCEPT
+
+      # # Drop all other IPv4 traffic
+      # #-A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK -j DROP
+
+      # Explicitly open the campus network subnet (for OOD)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $CAMPUS_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $CAMPUS_BLCK -j ACCEPT
+
+
+      ### Kopah rules
+
+      ## Limit Kopah DMZ Traffic
+
+      # Let https/s3 in from the outside world
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol udp --ip-source-port 1024:65535 --ip-destination-port 443 -j ACCEPT
+
+      # Let back in return traffic opened by clients on the SCI DMZ (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Let back in return traffic opened by clients on the SCI DMZ (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $KOPAH_DMZ_BLCK -j ACCEPT
+
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_DMZ_BLCK -j DROP
+
+
+      ## Limit Kopoah OAM (mgmt) Traffic
+
+      # Explicitly block NAT traffic from Science DMZ or ORCI Campus net (example: connecting via DIP NAT)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $SCIDMZ_BLCK --ip-destination $KOPAH_OAM_BLCK -j DROP
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $CAMPUS_BLCK --ip-destination $KOPAH_OAM_BLCK -j DROP
+
+      # ACCEPT HON pool in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_1 --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_2 --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_3 --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_4 --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      # ACCEPT Klone mgmt subnet in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $MGMT_BLCK --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      # ACCEPT Tilly mgmt subnet in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $TILLY_MGMT_BLCK --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+
+      # Let back in return traffic opened by clients on the Kopoah OAM net (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # Let back in return traffic opened by clients on the Kopoah OAM net (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 80 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 443 -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $KOPAH_OAM_BLCK -j ACCEPT
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OAM_BLCK -j DROP
+
+      ## Limit Kopah OOB (ipmi and such) Traffic
+
+      # Explicitly block NAT traffic from Science DMZ or ORCI Campus net (example: connecting via DIP NAT)
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $SCIDMZ_BLCK --ip-destination $KOPAH_OOB_BLCK -j DROP
+      # -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $CAMPUS_BLCK --ip-destination $KOPAH_OOB_BLCK -j DROP
+
+      # ACCEPT HON pool in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_1 --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_2 --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_3 --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $HON_BLCK_4 --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      # ACCEPT Klone mgmt subnet in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $MGMT_BLCK --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      # ACCEPT Tilly mgmt subnet in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $TILLY_MGMT_BLCK --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      # ACCEPT Klone OAM traffic in
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-source $KOPAH_OAM_BLCK --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+
+      # Let back in return traffic opened by clients on the Kopah OOB net (TCP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OOB_BLCK --ip-protocol tcp --ip-destination-port 1024:65535 -j ACCEPT
+      # Let back in return traffic opened by clients on the Kopah OOB net (UDP)
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OOB_BLCK --ip-protocol udp --ip-destination-port 1024:65535 -j ACCEPT
+
+      # Allow icmp
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p ip --ip-proto icmp --ip-destination $KOPAH_OOB_BLCK -j ACCEPT
+      # Drop all other IPv4 traffic
+      -A $FWD_CHAIN --in-interface $UPLINK_INTF -p IPv4 --ip-destination $KOPAH_OOB_BLCK -j DROP

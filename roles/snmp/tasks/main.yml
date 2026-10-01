@@ -1,0 +1,10 @@
+---
+- name: Setup snmpd server
+  template:
+    src: snmpd.conf.j2
+    dest: /etc/snmp/snmpd.conf
+  notify:
+    - stop snmpd in default vrf
+    - restart snmpd in mgmt vrf
+
+- meta: flush_handlers

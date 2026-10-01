@@ -1,0 +1,31 @@
+{{ ansible_managed }}
+
+auto lo
+iface lo inet loopback
+
+auto mgmt
+iface mgmt
+    vrf-table auto
+    address 127.0.0.1/8
+
+auto eth0
+iface eth0 inet dhcp
+    vrf mgmt
+
+auto swp1
+iface swp1
+
+auto swp2
+iface swp2
+
+auto borderBond
+iface borderBond
+    bond-slaves swp1 swp2
+
+auto borderBond.10
+iface borderBond.10
+    address 10.1.10.1/24
+
+auto borderBond.20
+iface borderBond.20
+    address 10.1.20.1/24

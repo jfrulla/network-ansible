@@ -1,0 +1,20 @@
+---
+- hosts: leaf spine service
+  become: true
+  gather_facts: false
+  tasks:
+  - name: Backup interfaces
+    fetch: src=/etc/network/interfaces dest=./backup_files/{{ inventory_hostname }}/interfaces flat=yes
+
+  - name: Backup daemons
+    fetch: src=/etc/frr/daemons dest=./backup_files/{{ inventory_hostname }}/daemons flat=yes
+
+  - name: Backup frr
+    fetch: src=/etc/frr/frr.conf dest=./backup_files/{{ inventory_hostname }}/frr.conf flat=yes
+
+- hosts: host
+  become: true
+  gather_facts: false
+  tasks:
+  - name: Backup interfaces
+    fetch: src=/etc/network/interfaces dest=./backup_files/{{ inventory_hostname }}/interfaces flat=yes

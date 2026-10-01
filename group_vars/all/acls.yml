@@ -1,0 +1,4 @@
+ebtables_core_data_plan_rules: 
+  - filename: '01data_plan.rules'
+    content: |
+      # ACLs moved to klone-eth-core-6f09-[3-4] via 'group_vars/all/100G-core-acls.yml'
