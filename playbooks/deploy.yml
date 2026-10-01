@@ -1,6 +1,5 @@
 ---
 - hosts: spine leaf
-#  become: yes
   roles:
     - { role: hostname, tags: ['hostname'] }
     - { role: motd, tags: ['motd'] }
@@ -11,20 +10,10 @@
     - { role: syslog, tags: ['syslog'] }
     - { role: ntp, tags: ['ntp'] }
     - { role: license, tags: ['license']}
-#    - { role: tacacs_client, tags: ['tacacs_client'] }
     - { role: interfaces, tags: ['interfaces'] }
     - { role: frr, tags: ['frr'] }
     - { role: ebtables, tags: ['ebtables'] }
     - { role: backup, tags: ['backup'] }
-    
-    #- { role: netq_switch, tags: ['netq_switch'] }
-
-- hosts: fw
-  become: yes
-  roles:
-    - { role: firewalls, tags: ['fw'] }
-    - { role: backup, tags: ['backup'] }
-    #- { role: netq_switch, tags: ['netq_switch'] }
 
 - hosts: ethswitches
   become: yes
@@ -35,16 +24,3 @@
         update_password: always
         password: "{{ cumulus_user_password|password_hash('sha512') }}"
       changed_when: False
-
-#- hosts: host
-#  become: yes
-#  roles:
-#    - { role: servers, tags: ['servers'] }
-#    - { role: backup, tags: ['backup'] }
-#    #- { role: netq_servers, tags: ['netq_servers'] }
-
-#- hosts: localhost
-#  become: yes
-#  roles:
-#    - { role: tacacs_server, tags: ['tacacs_server'] }
-#    #- { role: netq_servers, tags: ['netq_servers'] }

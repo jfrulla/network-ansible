@@ -1,17 +1,6 @@
 loopback:
   ips:
     - "{{vxlan_local_loopback_subnet}}.3/32"
-  # vxlan_local_tunnel_ip: "{{vxlan_local_loopback_subnet}}.2"
-  # clag_vxlan_anycast_ip: "{{vxlan_anycast_loopback_subnet}}.1"
-
-# eth0:
-#   dhcp: False
-#   ips:
-#     - "10.158.208.129/21"
-#   extras:
-#     - "gateway 10.158.208.45"
-#     - "hwaddress ether mac_sanitized"
-#     - "mtu 1500"
 
 eth0:
   dhcp: False
@@ -74,7 +63,6 @@ interfaces:
   - { name: "swp41", profile: "{{ node_ports }}" }
   - { name: "swp42", profile: "{{ node_ports }}" }
   - { name: "swp43", profile: "{{ node_ports }}" }
-  # TEMPORARY: Mgmt port for klone-eth-leaf-6h09-1
   - { name: "swp44", profile: "{{ switch_mgt_ports }}" }
   # 6H09-PDU
   - { name: "swp45", profile: "{{ switch_mgt_ports }}" }
@@ -88,9 +76,6 @@ interfaces:
   # Uplink bond to cores
   - { name: bond0, profile: "{{ leaf_uplink_bond_interface }}" }
 
-# vnis:
-#   - "{{ vni10_leaf }}"
-#   - "{{ vni20_leaf }}"
 bridge:
   interfaces:
     - { name: "glob swp1-48" }
@@ -101,42 +86,8 @@ bridge:
     - 3900
   extras:
     - "bridge-pvid 3900"
-# mlag:
-#   sysmac: "{{mlag_sysmac_prefix}}:AA"
-#   priority: primary
-#   peerlinks: [ swp49, swp50 ]
-#   backup: "{{vxlan_local_loopback_subnet}}.1"
-#   bonds:
-#     - { profile: "{{ mlagBondProfileA }}", name: bond1, ports: [swp1], id: 1 }
-#     - { profile: "{{ mlagBondProfileB }}", name: bond2, ports: [swp2], id: 2 }
 ##     - { profile: "{{ mlagBondProfileFW }}", name: bond3, ports: [swp3], id: 1 }
 vlans:
   - "{{ leaf_vlan20 }}"
   - "{{ leaf_vlan200 }}"
   - "{{ leaf_vlan3900 }}"
-# bgp:
-#   asn: "{{ bgp_asn_prefix }}01"
-#   router_id: "{{vxlan_local_loopback_subnet}}.2"
-#   peergroups:
-#     - { name: underlay, remote_as: external }
-#   neighbors:
-#     # Removed as per suggestion from dsinn
-#     # - { interface: peerlink.4094, unnumbered: yes, remote_as: internal }
-#     - { interface: swp51, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp52, unnumbered: yes, peergroup: underlay }
-#   extras:
-#     - "bgp bestpath as-path multipath-relax"
-#     # added per suggestion from dsinn
-#     - "neighbor underlay allowas-in origin"
-#   address_family:
-#     - name: ipv4_unicast
-#       redistribute:
-#         - { type: connected }
-#       extras:
-#         - "neighbor underlay allowas-in origin"
-#     - name: l2vpn_evpn
-#       neighbors:
-#         - { interface: underlay, activate: yes }
-#       advertise_all_vni: yes
-#       extras:
-#         - "neighbor underlay allowas-in origin"

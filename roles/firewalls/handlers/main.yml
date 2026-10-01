@@ -1,4 +1,0 @@
----
-- name: apply interface changes
-  become: true
-  shell: ifreload -a

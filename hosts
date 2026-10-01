@@ -1,7 +1,4 @@
 [all:vars]
-#ansible_user=cumulus
-#ansible_ssh_pass=CumulusLinux!
-
 #Generic Cumulus license for 4.3 and prior now used by Nvidia
 cumulus_license='secret_sanitized'
 
@@ -39,15 +36,9 @@ klone-eth-core-6f09-2
 klone-eth-core-6f09-3
 klone-eth-core-6f09-4
 
-[fw]
-
-[border]
-
 [ethswitches:children]
 leaf
 spine
-fw
-border
 
 [ethswitches_vault_access:children]
 ethswitches

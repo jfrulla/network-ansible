@@ -3,7 +3,6 @@ leaf_spine_interface:
   name: leaf_spine
   extras:
     - "alias leaf to spine"
-    # - "mtu 9216"
 
 leaf_uplink_bond_interface:
   name: leaf_uplink_bond
@@ -16,54 +15,43 @@ spine_spine_interface:
   name: spine_spine
   extras:
     - "alias spine to spine"
-    # - "mtu 9216"
 
 server_ports:
   name: server_ports
   extras:
-    # - "alias switch to server hosts"
     - "mtu 9216"
 
 switch_mgt_ports:
   name: switch_mgt_ports
   extras:
-    # - "alias switch to server hosts"
     - "mtu 9216"
     - "bridge-pvid 3900"
 
 node_ports:
   name: node_ports
   extras:
-    # - "alias switch to server hosts"
     - "mtu 9216"
     - "bridge-pvid 200"
 
 ceph_oob_ports:
   name: ceph_oob_ports
   extras:
-    # - "alias switch to ceph object store Dell iDRACs"
     - "mtu 9216"
     - "bridge-pvid 3902"
 
 server_ports_mlag:
   name: server_ports_mlag
   extras: []
-    # - "alias switch to server hosts with mlag"
-    # - "mtu 9216"
 
 ceph_oob_ports_mlag:
   name: ceph_oob_ports_mlag
   extras: []
-    # - "alias switch to server hosts with mlag"
-    # - "mtu 9216"
 
 ceph_leaf_ports_mlag:
   name: ceph_leaf_ports_mlag
   extras:
     - link-autoneg off
-    #- link-autoneg on
     - link-speed 100000
-    #- link-fec rs
     - link-fec off
     - link-duplex full
 
@@ -71,9 +59,7 @@ oldcore_leaf_ports_mlag:
   name: oldcore_leaf_ports_mlag
   extras:
     - link-autoneg off
-    #- link-autoneg on
     - link-speed 100000
-    #- link-fec rs
     - link-fec off
     - link-duplex full
 
@@ -81,5 +67,3 @@ uplink_ports_mlag:
   name: uplink_ports_mlag
   extras:
     - link-speed 40000
-    # - "alias switch to server hosts with mlag"
-    # - "mtu 9216"   # - "mtu 9216"

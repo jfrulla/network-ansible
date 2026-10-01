@@ -1,17 +1,6 @@
 loopback: 
   ips:
     - "{{vxlan_local_loopback_subnet}}.101/32"
-  # vxlan_local_tunnel_ip: "{{vxlan_local_loopback_subnet}}.101"
-  # clag_vxlan_anycast_ip: "{{vxlan_anycast_loopback_subnet}}.1"
-
-# eth0:
-#   dhcp: False
-#   ips: 
-#     - "10.158.208.129/21"
-#   extras:
-#     - "gateway 10.158.208.45"
-#     - "hwaddress ether mac_sanitized"
-#     - "mtu 1500"
 
 eth0:
   dhcp: False
@@ -53,7 +42,6 @@ interfaces:
   # Middle '100g' ports
 
   # Uplink to Science DMZ
-  #- { name: "swp25", profile: "{{ uplink_ports_mlag }}" } # QSFP28 100gbit (old UW uplink 40G)
   - { name: "swp25", profile: "{{ oldcore_leaf_ports_mlag }}" } # QSFP28 100gbit (new uplink to "new core" 100G)
 
   # Downlink to Kopah switch
@@ -89,15 +77,7 @@ interfaces:
   - { name: "swp53", profile: "{{ server_ports_mlag }}" }
   - { name: "swp54", profile: "{{ server_ports_mlag }}" }
 
-# vnis:
-#   - "{{ vni10_leaf }}"
-#   - "{{ vni20_leaf }}"
-
 bridge:
-  # interfaces:
-  #    - { name: "glob bond1-24"}
-  #    - { name: "glob bond31-54" }
-  #    - { name: "peerlink"}
   vids:
     - 20
     - 116
@@ -160,7 +140,6 @@ mlag:
     - { profile: "{{ mlagBondProfile_switch }}", name: bond23, ports: [swp23], id: 23 }
     - { profile: "{{ mlagBondProfile_switch }}", name: bond24, ports: [swp24], id: 24 }
     # Uplink to Science DMZ
-    #- { profile: "{{ mlagBondProfile_uplink }}",name: bond25, ports: [swp25], id: 25 } # (old UW uplink)
     - { profile: "{{ mlagBondProfile_oldcore }}",name: bond25, ports: [swp25], id: 25 } # (new uplink to "new core")
     # Downlinks to Ceph switches
     - { profile: "{{ mlagBondProfile_orci }}", name: bond29, ports: [swp29], id: 29 }
@@ -171,7 +150,6 @@ mlag:
     - { profile: "{{ mlagBondProfile_server }}", name: bond34, ports: [swp34], id: 34 }
     - { profile: "{{ mlagBondProfile_server }}", name: bond35, ports: [swp35], id: 35 }
     - { profile: "{{ mlagBondProfile_server_campus }}", name: bond36, ports: [swp36], id: 36 } # klone-ood-1
-    #- { profile: "{{ mlagBondProfile_server }}", name: bond36, ports: [swp36], id: 36 } # klone-ood-1
     - { profile: "{{ mlagBondProfile_server }}", name: bond37, ports: [swp37], id: 37 }
     - { profile: "{{ mlagBondProfile_server }}", name: bond38, ports: [swp38], id: 38 }
     - { profile: "{{ mlagBondProfile_server }}", name: bond39, ports: [swp39], id: 39 }
@@ -190,53 +168,3 @@ mlag:
     - { profile: "{{ mlagBondProfile_server }}", name: bond52, ports: [swp52], id: 52 }
     - { profile: "{{ mlagBondProfile_server }}", name: bond53, ports: [swp53], id: 53 }
     - { profile: "{{ mlagBondProfile_server }}", name: bond54, ports: [swp54], id: 54 }
-
-# ebtables_rules: "{{ ebtables_core_data_plan_rules }}"
-# bgp: 
-#   # asn: "{{ bgp_asn_prefix }}99"
-#   asn: "64815"
-#   router_id: "{{vxlan_local_loopback_subnet}}.101"
-#   peergroups:
-#     - { name: underlay, remote_as: external }
-#   neighbors:
-#     # Only Left side to other switches
-#     - { interface: swp1, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp2, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp3, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp4, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp5, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp6, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp7, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp8, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp9, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp10, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp11, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp12, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp13, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp14, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp15, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp16, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp17, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp18, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp19, unnumbered: yes, peergroup: underlay }  
-#     - { interface: swp20, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp21, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp22, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp23, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp24, unnumbered: yes, peergroup: underlay }
-#     - { interface: swp25, unnumbered: yes, peergroup: underlay }
-#   extras:
-#     - "bgp bestpath as-path multipath-relax"
-#     # added per suggestion from dsinn
-#     - "neighbor underlay allowas-in origin"
-#   address_family:
-#     - name: ipv4_unicast
-#       redistribute:
-#         - { type: connected }
-#       extras:
-#         - "neighbor underlay allowas-in origin"
-#     - name: l2vpn_evpn
-#       neighbors:
-#         - { interface: underlay, activate: yes }
-#       extras:
-#         - "neighbor underlay allowas-in origin"

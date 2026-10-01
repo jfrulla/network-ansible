@@ -24,16 +24,3 @@
 
   - name: reload frr
     service: name=frr state=reloaded
-
-- hosts: host
-  become: true
-  gather_facts: false
-  tasks:
-  - name: install ifupdown2
-    apt:
-      name: ifupdown2
-      state: present
-      update_cache: true
-
-  - name: Copy over interfaces template
-    template: src=./backup_files/{{ inventory_hostname }}/interfaces dest=/etc/network/interfaces

@@ -13,7 +13,7 @@ The fabric is a set of **spine** (core) and **leaf** switches managed entirely f
 - **MLAG switch pairs.** Bond/bridge profiles in `mlagbonds.yml` and the `interfaces` role templates render MLAG peering, bonds, and bridge VLAN membership for redundant leaf pairs.
 - **FRR/BGP routing** via the `frr` role, with support for BGP unnumbered peer-groups, VRFs, and EVPN/VXLAN (loopback VTEP addressing is wired through `vxlan_local_loopback_subnet`).
 - **Data-plane ACLs.** The `ebtables` role deploys the Science DMZ filtering rules (`group_vars/all/100G-core-acls.yml`) on the 100G core switches — SSH/GridFTP/Globus ingress, LDAP/Kerberos/DNS pinholes, and management-VLAN isolation.
-- **Base system services** — hostname, MOTD/login banner, DNS, SSH hardening, PTM, SNMP, syslog forwarding, NTP, and (optional, currently disabled) TACACS+ and NetQ roles.
+- **Base system services** — hostname, MOTD/login banner, DNS, SSH hardening, PTM, SNMP, syslog forwarding, and NTP.
 - **Licensing and secrets.** Switches are grouped in the inventory by Cumulus license SKU; each group pulls its license key from an Ansible Vault variable in `group_vars/license_vault_access/vault`. The `cumulus` user password is likewise vaulted and enforced on every run.
 - **Config backup.** The `backup` role snapshots each switch's rendered `/etc/network/interfaces` and FRR config back into the repository tree.
 

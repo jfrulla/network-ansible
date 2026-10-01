@@ -8,7 +8,6 @@ eth0:
     - "10.158.213.13/21"
   extras:
     - "gateway 10.158.208.45"
-    # - "hwaddress ether mac_sanitized"
     - hwaddress ether mac_sanitized
     - "mtu 1500"
 

@@ -1,4 +1,0 @@
-- name: restart tacacs
-  service:
-    name: tacacs_plus
-    state: restarted
